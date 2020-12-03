@@ -1,0 +1,124 @@
+
+  model {
+  # covariate model - imputing for missing values of covariate
+  mu.TABR ~ dnorm( 0, 0.001 ) #mean
+  sd.TABR ~ dgamma( 10, 10 )  #SD  
+  tau1 <- 1/(sd.TABR)          #measure of precision
+    
+  for( i in 1:nSite ){
+      for( t in 1:nocc ){
+      TABR[i,t] ~ dnorm( mu.TABR, tau1 )
+    }
+   }
+ 
+  mu.maxT ~ dnorm( 0, 0.001 ) #mean
+  sd.maxT ~ dgamma( 10, 10 )  #SD  
+  tau2 <- 1/(sd.maxT)          #measure of precision
+    
+  for( i in 1:nSite ){
+      for( t in 1:nocc ){
+      maxT[i,t] ~ dnorm( mu.maxT, tau2 )
+    }
+   }
+   
+  # covariate model - imputing for missing values of covariate
+  mu.scoto ~ dnorm( 0, 0.001 ) #mean
+  sd.scoto ~ dgamma( 10, 10 )  #SD  
+  tau3 <- 1/(sd.scoto)          #measure of precision
+    
+  for( i in 1:nSite ){
+      for( t in 1:nocc ){
+      scoto[i,t] ~ dnorm( mu.scoto, tau3 )
+    }
+   }
+   
+  # covariate model - imputing for missing values of covariate
+  mu.noise ~ dnorm( 0, 0.001 ) #mean
+  sd.noise ~ dgamma( 10, 10 )  #SD  
+  tau4 <- 1/(sd.noise)          #measure of precision
+    
+  for( i in 1:nSite ){
+      for( t in 1:nocc ){
+      noise[i,t] ~ dnorm( mu.noise, tau4 )
+    }
+   }
+   
+    # Priors
+    
+    b00.psi ~ dnorm( 0, 0.001 )T(-10,10) #uninformative
+    b01.psi ~ dnorm( 0, 0.001 )T(-10,10)
+    b02.psi ~ dnorm( 0, 0.001 )T(-10,10)
+    b03.psi ~ dnorm( 0, 0.001 )T(-10,10)
+    b04.psi ~ dnorm( 0, 0.001 )T(-10,10)
+    b05.psi ~ dnorm( 0, 0.001 )T(-10,10)
+    b06.psi ~ dnorm( 0, 0.001 )T(-10,10)
+    b07.psi ~ dnorm( 0, 0.001 )T(-10,10)
+    
+    b00.p ~ dnorm( 0, 0.001 )T(-10, 10)
+    b01.p ~ dnorm( 0, 0.001 )T(-10, 10) 
+    b02.p ~ dnorm( 0, 0.001 )T(-10, 10) 
+    b03.p ~ dnorm( 0, 0.001 )T(-10, 10) 
+    b04.p ~ dnorm( 0, 0.001 )T(-10, 10) 
+    b05.p ~ dnorm( 0, 0.001 )T(-10, 10) 
+    b06.p ~ dnorm( 0, 0.001 )T(-10, 10) 
+    b07.p ~ dnorm( 0, 0.001 )T(-10, 10) 
+    b08.p ~ dnorm( 0, 0.001 )T(-10, 10)
+    b09.p ~ dnorm( 0, 0.001 )T(-10, 10)
+    b10.p ~ dnorm( 0, 0.001 )T(-10, 10)
+    b11.p ~ dnorm( 0, 0.001 )T(-10, 10)
+    
+    logit(mean.psi.devlow) <- b00.psi        #outputting the backtransformed mean.psi
+    logit(mean.psi.emerge) <- b01.psi
+    logit(mean.psi.herb) <- b02.psi
+    logit(mean.psi.mixed) <-  b03.psi
+    logit(mean.psi.open) <-  b04.psi
+    logit(mean.psi.pine) <- b05.psi
+    logit(mean.psi.shrub) <- b06.psi
+    logit(mean.psi.woodwet) <- b07.psi
+    
+    logit(mean.p.RCW) <-  b00.p
+    logit(mean.p.TABR) <- b01.p
+    logit(mean.p.emerge) <- b02.p
+    logit(mean.p.herb) <-  b03.p
+    logit(mean.p.marsh) <- b04.p
+    logit(mean.p.maxT) <-  b05.p
+    logit(mean.p.mixed) <-  b06.p
+    logit(mean.p.noise) <-  b07.p
+    logit(mean.p.pine) <-  b08.p
+    logit(mean.p.scoto) <- b09.p
+    logit(mean.p.shrub) <- b10.p
+    logit(mean.p.woodwet) <-  b11.p
+    
+    for( i in 1:nSite ){
+      logit( psi[i] ) <- b00.psi*devlow[i] + b01.psi*emerge[i]  
+          + b02.psi*herb[i] + b03.psi*mixed[i] + b04.psi*open[i] 
+          + b05.psi*pine[i] + b06.psi*shrub[i] +  b07.psi*woodwet[i] 
+      
+      for( t in 1:nocc ){
+          logit( p[i,t] ) <-  b00.p*RCW[i]
+          + b01.p*TABR[i,t] + b02.p*emerge[i] + b03.p*herb[i] + b04.p*marsh[i]  
+          + b05.p*maxT[i,t] + b06.p*mixed[i] + b07.p*noise[i,t] + b08.p*pine[i]
+          + b09.p*scoto[i,t] + b10.p*shrub[i] +  b11.p*woodwet[i] 
+          
+      }
+    }
+    
+
+    # Likelihood
+    
+    for( i in 1:nSite ){
+      # process model - occupancy
+      z[i] ~ dbern( psi[i] )         #creating a vector for what sites 
+    
+      # observation model  - linking occupancy and detection
+      for( t in 1:nocc ){
+        y[i,t] ~ dbern( z[i]*p[i,t] )  
+      }
+    }
+    
+    
+    # Derived parameters
+    # number of sites occupied
+    N <- sum(z[]) 
+  
+  }

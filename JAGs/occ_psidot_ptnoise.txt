@@ -1,0 +1,47 @@
+
+model {
+   
+  # covariate model - imputing for missing values of covariate
+  mu.noise ~ dnorm( 0, 0.001 ) #mean
+  sd.noise ~ dgamma( 10, 10 )  #SD  
+  tau <- 1/(sd.noise)          #measure of precision
+    
+  for( i in 1:nSite ){
+      for( t in 1:nocc ){
+      noise[i,t] ~ dnorm( mu.noise, tau )
+    }
+   }
+   
+  # priors
+  b0.psi ~ dnorm( 0, 0.001 )T(-10,10)
+  
+  b00.p ~ dnorm( 0, 0.001 )T(-10,10) #prior for effect at mean noise (mean = 0)
+  b01.p ~ dnorm( 0, 0.001 )T(-10,10) #prior for effect of noise
+
+  
+  for( i in 1:nSite ){
+    logit( psi[i] ) <- b0.psi     #looping through sites (i)
+    
+    for( t in 1:nocc ){           #looping through sites, occasions (i,t)
+      logit( p[i,t] ) <- b00.p + b01.p*noise[i,t] 
+    }
+  }
+ 
+  #link functions
+  logit(mean.psi) <- b0.psi
+  logit(mean.p)   <- b00.p    #p at mean of noise
+
+  
+  # likelihood
+  for( i in 1:nSite ){
+    z[i] ~ dbern( psi[i] )  # process model - occupancy
+    for( t in 1:nocc ){     # observation model - linking occupancy and detection
+      y[i,t] ~ dbern( z[i]*p[i,t] )
+    }
+  }
+ 
+   
+  # Derived parameters
+  N <- sum(z[]) # number of sites occupied
+  
+}

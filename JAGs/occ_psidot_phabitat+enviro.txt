@@ -1,0 +1,100 @@
+
+  model {
+  # covariate model - imputing for missing values of covariate
+  mu.TABR ~ dnorm( 0, 0.001 ) #mean
+  sd.TABR ~ dgamma( 10, 10 )  #SD  
+  tau1 <- 1/(sd.TABR)          #measure of precision
+    
+  for( i in 1:nSite ){
+      for( t in 1:nocc ){
+      TABR[i,t] ~ dnorm( mu.TABR, tau1 )
+    }
+   }
+ 
+  mu.maxT ~ dnorm( 0, 0.001 ) #mean
+  sd.maxT ~ dgamma( 10, 10 )  #SD  
+  tau2 <- 1/(sd.maxT)          #measure of precision
+    
+  for( i in 1:nSite ){
+      for( t in 1:nocc ){
+      maxT[i,t] ~ dnorm( mu.maxT, tau2 )
+    }
+   }
+   
+  # covariate model - imputing for missing values of covariate
+  mu.scoto ~ dnorm( 0, 0.001 ) #mean
+  sd.scoto ~ dgamma( 10, 10 )  #SD  
+  tau3 <- 1/(sd.scoto)          #measure of precision
+    
+  for( i in 1:nSite ){
+      for( t in 1:nocc ){
+      scoto[i,t] ~ dnorm( mu.scoto, tau3 )
+    }
+   }
+   
+  # covariate model - imputing for missing values of covariate
+  mu.noise ~ dnorm( 0, 0.001 ) #mean
+  sd.noise ~ dgamma( 10, 10 )  #SD  
+  tau4 <- 1/(sd.noise)          #measure of precision
+    
+  for( i in 1:nSite ){
+      for( t in 1:nocc ){
+      noise[i,t] ~ dnorm( mu.noise, tau4 )
+    }
+   }
+   
+    # Priors
+    
+    b0.psi ~ dnorm( 0, 0.001 )T(-10,10) #uninformative
+    b00.p ~ dnorm( 0, 0.001 )T(-10, 10)
+    b01.p ~ dnorm( 0, 0.001 )T(-10, 10) 
+    b02.p ~ dnorm( 0, 0.001 )T(-10, 10) 
+    b03.p ~ dnorm( 0, 0.001 )T(-10, 10) 
+    b04.p ~ dnorm( 0, 0.001 )T(-10, 10) 
+    b05.p ~ dnorm( 0, 0.001 )T(-10, 10) 
+    b06.p ~ dnorm( 0, 0.001 )T(-10, 10)
+    b07.p ~ dnorm( 0, 0.001 )T(-10, 10) 
+    b08.p ~ dnorm( 0, 0.001 )T(-10, 10) 
+ 
+    logit(mean.psi) <- b0.psi        #outputting the backtransformed mean.psi
+    
+    logit(mean.p.Flatwoods) <- b00.p
+    logit(mean.p.GrassPrairie) <- b01.p
+    logit(mean.p.Oak) <- b02.p
+    logit(mean.p.Plantations) <- b03.p
+    logit(mean.p.Scrub) <- b04.p
+    logit(mean.p.SwampMarsh) <-  b05.p
+    logit(mean.p.TABR) <- b06.p 
+    logit(mean.p.maxT) <-   b07.p
+    logit(mean.p.noise) <-   b08.p
+    
+    for( i in 1:nSite ){
+      logit( psi[i] ) <- b0.psi       
+      for( t in 1:nocc ){
+          logit( p[i,t] ) <-   b00.p*Flatwoods[i] + b01.p*GrassPrairie[i]
+          + b02.p*Oak[i] + b03.p*Plantations[i]  
+          + b04.p*Scrub[i] + b05.p*SwampMarsh[i] +b06.p*TABR[i,t] + b07.p*maxT[i,t] 
+          + b08.p*noise[i,t]
+          
+      }
+    }
+    
+
+    # Likelihood
+    
+    for( i in 1:nSite ){
+      # process model - occupancy
+      z[i] ~ dbern( psi[i] )         #creating a vector for what sites 
+    
+      # observation model  - linking occupancy and detection
+      for( t in 1:nocc ){
+        y[i,t] ~ dbern( z[i]*p[i,t] )  
+      }
+    }
+    
+    
+    # Derived parameters
+    # number of sites occupied
+    N <- sum(z[]) 
+  
+  }

@@ -1,0 +1,38 @@
+
+  model {
+
+    # Priors
+    
+    b0.psi ~ dnorm( 0, 0.001 )T(-10,10) #uninformative
+    b1.psi ~ dnorm( 0, 0.001 )T(-10,10)
+    b0.p ~ dnorm( 0, 0.001 )T(-10,10)
+    
+    for( i in 1:nSite ){
+      logit( psi[i] ) <- b0.psi + b1.psi*x1[i]      #for every site we'll have a different psi
+      for( t in 1:nocc ){
+          logit( p[i,t] ) <- b0.p
+      }
+    }
+    
+    logit(mean.psi) <- b0.psi + b1.psi*0       #outputting the backtransformed mean.psi
+                                          #always make the mean of your real covariates 0 
+                                          #before analyzing them as covariates
+    logit(mean.p) <- b0.p
+    
+    # likelihood
+    
+    for( i in 1:nSite ){
+      # process model - occupancy
+      z[i] ~ dbern( psi[i] )         #creating a vector for what sites 
+    
+      # observation model  - linking occupancy and detection
+      for( t in 1:nocc ){
+        y[i,t] ~ dbern( z[i]*p[i,t] )  
+      }
+    }
+    
+    # Derived parameters
+    # number of sites occupied
+    N <- sum(z[]) 
+  
+  }

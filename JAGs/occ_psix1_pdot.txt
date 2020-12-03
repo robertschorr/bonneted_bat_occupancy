@@ -1,0 +1,36 @@
+
+  model {
+
+    # Priors
+    
+    b0.psi ~ dnorm( 0, 0.001 )T(-10,10)
+    b1.psi ~ dnorm( 0, 0.001 )T(-10,10)
+    b0.p ~ dnorm( 0, 0.001 )T(-10,10)
+    
+    for( i in 1:nSite ){
+      logit( psi[i] ) <- b0.psi + b1.psi*x1[i]
+      for( t in 1:nocc ){
+          logit( p[i,t] ) <- b0.p
+      }
+    }
+    
+    logit(mean.psi) <- b0.psi
+    logit(mean.p) <- b0.p
+    
+    # likelihood
+    
+    for( i in 1:nSite ){
+      # process model
+      z[i] ~ dbern( psi[i] )
+    
+      # observation model
+      for( t in 1:nocc ){
+        y[i,t] ~ dbern( z[i]*p[i,t] )
+      }
+    }
+    
+    # Derived parameters
+    # number of sites occupied
+    N <- sum(z[]) 
+  
+  }

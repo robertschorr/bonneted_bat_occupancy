@@ -1,0 +1,57 @@
+
+ model {
+ 
+    # priors
+      b0.psi ~ dnorm( 0, 0.001 )T(-10,10)
+       
+      b00.p ~ dnorm( 0, 0.001 )T(-10,10) #prior for t1
+      b01.p ~ dnorm( 0, 0.001 )T(-10,10) #prior for t2
+      b02.p ~ dnorm( 0, 0.001 )T(-10,10) #prior for t3
+      b03.p ~ dnorm( 0, 0.001 )T(-10,10) #prior for t4
+      b04.p ~ dnorm( 0, 0.001 )T(-10,10) #prior for t5
+      b05.p ~ dnorm( 0, 0.001 )T(-10,10) #prior for t6
+      b06.p ~ dnorm( 0, 0.001 )T(-10,10) #prior for t7
+      b07.p ~ dnorm( 0, 0.001 )T(-10,10) #prior for t8
+      b08.p ~ dnorm( 0, 0.001 )T(-10,10) #prior for t9
+      
+      
+      
+      for( i in 1:nSite ){
+      logit( psi[i] ) <- b0.psi
+      
+      for( t in 1:nocc ){
+      logit( p[i,t] ) <- b00.p + b01.p + b02.p + b03.p + b04.p + b05.p +
+                            b06.p + b07.p + b08.p   
+        }
+    }
+    
+    logit(mean.psi) <-  b0.psi
+    logit(mean.p.t01) <- b00.p            #time1
+    logit(mean.p.t02) <- b00.p + b01.p     #time2
+    logit(mean.p.t03) <- b00.p + b02.p     #time3
+    logit(mean.p.t04) <- b00.p + b03.p     #time4
+    logit(mean.p.t05) <- b00.p + b04.p     #time5
+    logit(mean.p.t06) <- b00.p + b05.p     #time6
+    logit(mean.p.t07) <- b00.p + b06.p     #time7
+    logit(mean.p.t08) <- b00.p + b07.p     #time8
+    logit(mean.p.t09) <- b00.p + b08.p     #time9
+  
+    
+ 
+      # likelihood
+    
+    for( i in 1:nSite ){
+      # process model - occupancy
+      z[i] ~ dbern( psi[i] )
+    
+      # observation model - linking occupancy and detection
+      for( t in 1:nocc ){
+        y[i,t] ~ dbern( z[i]*p[i,t] )
+      }
+    }
+    
+    # Derived parameters
+    # number of sites occupied
+    N <- sum(z[]) 
+  
+  }

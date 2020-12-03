@@ -1,0 +1,90 @@
+
+ model {
+ 
+    # priors
+      b0.psi ~ dnorm( 0, 0.001 )T(-10,10)
+       
+      b0.p ~ dnorm( 0, 0.001 )T(-10,10) #prior for t1
+      b1.p ~ dnorm( 0, 0.001 )T(-10,10) #prior for t2
+      b2.p ~ dnorm( 0, 0.001 )T(-10,10) #prior for t3
+      b3.p ~ dnorm( 0, 0.001 )T(-10,10) #prior for t4
+      b4.p ~ dnorm( 0, 0.001 )T(-10,10) #prior for t5
+      b5.p ~ dnorm( 0, 0.001 )T(-10,10) #prior for t6
+      b6.p ~ dnorm( 0, 0.001 )T(-10,10) #prior for t7
+      b7.p ~ dnorm( 0, 0.001 )T(-10,10) #prior for t8
+      b8.p ~ dnorm( 0, 0.001 )T(-10,10) #prior for t9
+      b9.p ~ dnorm( 0, 0.001 )T(-10,10) #prior for t10
+      b10.p ~ dnorm( 0, 0.001 )T(-10,10) #prior for t11
+      b11.p ~ dnorm( 0, 0.001 )T(-10,10) #prior for t12
+      b12.p ~ dnorm( 0, 0.001 )T(-10,10) #prior for t13
+      b13.p ~ dnorm( 0, 0.001 )T(-10,10) #prior for t14
+      b14.p ~ dnorm( 0, 0.001 )T(-10,10) #prior for t15
+      b15.p ~ dnorm( 0, 0.001 )T(-10,10) #prior for t16
+      b16.p ~ dnorm( 0, 0.001 )T(-10,10) #prior for t17
+      b17.p ~ dnorm( 0, 0.001 )T(-10,10) #prior for t18
+      b18.p ~ dnorm( 0, 0.001 )T(-10,10) #prior for t19
+      b19.p ~ dnorm( 0, 0.001 )T(-10,10) #prior for t20
+      b20.p ~ dnorm( 0, 0.001 )T(-10,10) #prior for t21
+      b21.p ~ dnorm( 0, 0.001 )T(-10,10) #prior for t22
+      b22.p ~ dnorm( 0, 0.001 )T(-10,10) #prior for t23
+      b23.p ~ dnorm( 0, 0.001 )T(-10,10) #prior for t24
+      b24.p ~ dnorm( 0, 0.001 )T(-10,10) #prior for t25
+      
+      for( i in 1:nSite ){
+      logit( psi[i] ) <- b0.psi
+      
+      for( t in 1:nocc ){
+      logit( p[i,t] ) <- b0.p + b1.p + b2.p + b3.p + b4.p + b5.p +
+                            b6.p + b7.p + b8.p + b9.p + b10.p + b11.p +
+                            b12.p + b13.p + b14.p + b15.p + b16.p + b17.p +
+                            b18.p + b19.p + b20.p + b21.p + b22.p + b23.p +
+                            b24.p 
+        }
+    }
+    
+    logit(mean.psi) <-  b0.psi
+    logit(mean.p.t1) <- b0.p            #time1
+    logit(mean.p.t2) <- b0.p + b1.p     #time2
+    logit(mean.p.t3) <- b0.p + b2.p     #time3
+    logit(mean.p.t4) <- b0.p + b3.p     #time4
+    logit(mean.p.t5) <- b0.p + b4.p     #time5
+    logit(mean.p.t6) <- b0.p + b5.p     #time6
+    logit(mean.p.t7) <- b0.p + b6.p     #time7
+    logit(mean.p.t8) <- b0.p + b7.p     #time8
+    logit(mean.p.t9) <- b0.p + b8.p     #time9
+    logit(mean.p.t10) <- b0.p + b9.p     #time10
+    logit(mean.p.t11) <- b0.p + b10.p    #time11
+    logit(mean.p.t12) <- b0.p + b11.p    #time12
+    logit(mean.p.t13) <- b0.p + b12.p    #time13
+    logit(mean.p.t14) <- b0.p + b13.p    #time14
+    logit(mean.p.t15) <- b0.p + b14.p    #time15
+    logit(mean.p.t16) <- b0.p + b15.p    #time16
+    logit(mean.p.t17) <- b0.p + b16.p    #time17
+    logit(mean.p.t18) <- b0.p + b17.p    #time18
+    logit(mean.p.t19) <- b0.p + b18.p    #time19
+    logit(mean.p.t20) <- b0.p + b19.p    #time20
+    logit(mean.p.t21) <- b0.p + b20.p    #time21
+    logit(mean.p.t22) <- b0.p + b21.p    #time22
+    logit(mean.p.t23) <- b0.p + b22.p    #time23
+    logit(mean.p.t24) <- b0.p + b23.p    #time24
+    logit(mean.p.t25) <- b0.p + b24.p    #time25
+    
+    
+      
+      # likelihood
+    
+    for( i in 1:nSite ){
+      # process model - occupancy
+      z[i] ~ dbern( psi[i] )
+    
+      # observation model - linking occupancy and detection
+      for( t in 1:nocc ){
+        y[i,t] ~ dbern( z[i]*p[i,t] )
+      }
+    }
+    
+    # Derived parameters
+    # number of sites occupied
+    N <- sum(z[]) 
+  
+  }

@@ -1,0 +1,41 @@
+
+  model {
+
+    # Priors
+    
+    b0.psi ~ dnorm( 0, 0.001 )T(-10,10) #uninformative
+    b00.p ~ dnorm( 0, 0.001 )T(-10,10)
+    b01.p ~ dnorm( 0, 0.001 )T(-10, 10) #prior for habitat
+    
+    logit(mean.psi) <- b0.psi        #outputting the backtransformed mean.psi
+    logit(mean.p) <- b00.p
+    logit(mean.p.swamp) <- b00.p + b01.p 
+    
+    
+    for( i in 1:nSite ){
+      logit( psi[i] ) <- b0.psi       #for every site we'll have a different psi
+      for( t in 1:nocc ){
+          logit( p[i,t] ) <- b00.p + b01.p*swamp[i]
+      }
+    }
+    
+
+    # Likelihood
+    
+    for( i in 1:nSite ){
+      # process model - occupancy
+      z[i] ~ dbern( psi[i] )         #creating a vector for what sites 
+    
+      # observation model  - linking occupancy and detection
+      for( t in 1:nocc ){
+        y[i,t] ~ dbern( z[i]*p[i,t] )  
+      }
+    }
+    
+  
+    
+    # Derived parameters
+    # number of sites occupied
+    N <- sum(z[]) 
+  
+  }

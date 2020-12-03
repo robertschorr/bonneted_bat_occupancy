@@ -1,0 +1,72 @@
+
+  model {
+
+    # Priors
+    
+    b0.psi ~ dnorm( 0, 0.001 )T(-10,10)
+    b0.p ~ dnorm( 0, 0.001 )T(-10,10)
+    
+    for( i in 1:nSite ){
+      logit( psi[i] ) <- b0.psi
+      for( t in 1:nocc ){
+          logit( p[i,t] ) <- b0.p
+      }
+    }
+    
+    logit(mean.psi) <- b0.psi
+    logit(mean.p) <- b0.p
+    
+    # likelihood
+    
+    for( i in 1:nSite ){
+      # process model
+      z[i] ~ dbern( psi[i] )
+    
+      # observation model
+      for( t in 1:nocc ){
+        y[i,t] ~ dbern( z[i]*p[i,t] )
+      }
+    }
+    
+    # Derived parameters
+    # number of sites occupied
+    N <- sum(z[]) 
+    ###################################fit ###########
+    for( i in 1:nSite ){
+      
+      # observation model
+      for( t in 1:nocc ){
+        y.new[i,t] ~ dbern( z[i]*p[i,t] )
+      }
+    }
+    
+    for( i in 1:nSite ){
+      
+      # observation model
+      for( t in 1:nocc ){
+        exp_y[i,t] <- p[i,t]*z[i]
+        
+        
+        # calculate likelihood for observed and simulated data
+        LLsim[i,t] <- (y.new[i,t]*log(p[i,t]) +
+                      (1-y.new[i,t])*log(1-p[i,t]))*z[i]
+        LLdata[i,t] <- (y[i,t]*log(p[i,t])+
+                       (1-y[i,t])*log(1-p[i,t]))*z[i]
+    
+        # calculated expected loss for observed and simulated data
+        loss_data[i,t] <- (exp_y[i,t]-y[i,t])*(exp_y[i,t]-y[i,t])
+        loss_sim[i,t] <- (exp_y[i,t]-y.new[i,t])*(exp_y[i,t]-y.new[i,t])
+    
+      }
+    }
+    #Bayesian GOF
+    sum_data_loss <- sum(loss_data[,])
+    sum_sim_loss <- sum( loss_sim[,] )
+  
+    test <- sum_sim_loss < sum_data_loss 
+    
+    dev_sim <- -2*sum(LLsim[,])
+    dev_data <- -2*sum(LLdata[,])
+    test2 <- dev_sim < dev_data
+    
+  }

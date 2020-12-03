@@ -1,0 +1,157 @@
+
+  model {
+  # covariate model - imputing for missing values of covariate
+  mu.TABR ~ dnorm( 0, 0.001 ) #mean
+  sd.TABR ~ dgamma( 10, 10 )  #SD  
+  tau1 <- 1/(sd.TABR)          #measure of precision
+    
+  for( i in 1:nSite ){
+      for( t in 1:nocc ){
+      TABR[i,t] ~ dnorm( mu.TABR, tau1 )
+    }
+   }
+ 
+  mu.maxT ~ dnorm( 0, 0.001 ) #mean
+  sd.maxT ~ dgamma( 10, 10 )  #SD  
+  tau2 <- 1/(sd.maxT)          #measure of precision
+    
+  for( i in 1:nSite ){
+      for( t in 1:nocc ){
+      maxT[i,t] ~ dnorm( mu.maxT, tau2 )
+    }
+   }
+   
+  # covariate model - imputing for missing values of covariate
+  mu.scoto ~ dnorm( 0, 0.001 ) #mean
+  sd.scoto ~ dgamma( 10, 10 )  #SD  
+  tau3 <- 1/(sd.scoto)          #measure of precision
+    
+  for( i in 1:nSite ){
+      for( t in 1:nocc ){
+      scoto[i,t] ~ dnorm( mu.scoto, tau3 )
+    }
+   }
+   
+  # covariate model - imputing for missing values of covariate
+  mu.noise ~ dnorm( 0, 0.001 ) #mean
+  sd.noise ~ dgamma( 10, 10 )  #SD  
+  tau4 <- 1/(sd.noise)          #measure of precision
+    
+  for( i in 1:nSite ){
+      for( t in 1:nocc ){
+      noise[i,t] ~ dnorm( mu.noise, tau4 )
+    }
+   }
+   
+    # covariate model - imputing for missing values of covariate
+  mu.CRMIN ~ dnorm( 0, 0.001 ) #mean
+  sd.CRMIN ~ dgamma( 10, 10 )  #SD  
+  tau5 <- 1/(sd.CRMIN)          #measure of precision
+    
+  for( i in 1:nSite ){
+     CRMIN[i] ~ dnorm( mu.CRMIN, tau5 )
+   } 
+   
+  # covariate model - imputing for missing values of covariate
+  mu.CAMAX ~ dnorm( 0, 0.001 ) #mean
+  sd.CAMAX ~ dgamma( 10, 10 )  #SD  
+  tau6 <- 1/(sd.CAMAX)          #measure of precision
+    
+  for( i in 1:nSite ){
+     CAMAX[i] ~ dnorm( mu.CAMAX, tau6 )
+   }  
+   
+    # Priors
+    b0.p ~ dnorm( 0, 0.001 )T(-10, 10) #uniformative
+    b1.p ~ dnorm( 0, 0.001 )T(-10, 10) 
+    b2.p ~ dnorm( 0, 0.001 )T(-10, 10) 
+    b3.p ~ dnorm( 0, 0.001 )T(-10, 10) 
+    b4.p ~ dnorm( 0, 0.001 )T(-10, 10) 
+    b5.p ~ dnorm( 0, 0.001 )T(-10, 10) 
+    b6.p ~ dnorm( 0, 0.001 )T(-10, 10)
+    b7.p ~ dnorm( 0, 0.001 )T(-10, 10) 
+    b8.p ~ dnorm( 0, 0.001 )T(-10, 10) 
+    
+    b00.psi ~ dnorm( 0, 0.001 )T(-10, 10) #uniformative
+    b01.psi ~ dnorm( 0, 0.001 )T(-10, 10) 
+    b02.psi ~ dnorm( 0, 0.001 )T(-10, 10) 
+    b03.psi ~ dnorm( 0, 0.001 )T(-10, 10) 
+    b04.psi ~ dnorm( 0, 0.001 )T(-10, 10) 
+    b05.psi ~ dnorm( 0, 0.001 )T(-10, 10) 
+    b06.psi ~ dnorm( 0, 0.001 )T(-10, 10)
+    b07.psi ~ dnorm( 0, 0.001 )T(-10, 10) 
+    b08.psi ~ dnorm( 0, 0.001 )T(-10, 10)
+    b09.psi ~ dnorm( 0, 0.001 )T(-10, 10) 
+    b10.psi ~ dnorm( 0, 0.001 )T(-10, 10) 
+    b11.psi ~ dnorm( 0, 0.001 )T(-10, 10)
+    b12.psi ~ dnorm( 0, 0.001 )T(-10, 10) 
+    b13.psi ~ dnorm( 0, 0.001 )T(-10, 10)
+    b14.psi ~ dnorm( 0, 0.001 )T(-10, 10)
+    b15.psi ~ dnorm( 0, 0.001 )T(-10, 10)
+    b16.psi ~ dnorm( 0, 0.001 )T(-10, 10)
+    b17.psi ~ dnorm( 0, 0.001 )T(-10, 10)
+   
+    logit(mean.psi.ANWET) <- b00.psi        #outputting the backtransformed mean.psi
+    logit(mean.psi.CAMAX) <- b01.psi
+    logit(mean.psi.CRMIN) <- b02.psi
+    logit(mean.psi.DSF) <- b03.psi
+    logit(mean.psi.Flatwoods) <- b04.psi
+    logit(mean.psi.GrassPrairie) <- b05.psi
+    logit(mean.psi.HNTREE) <- b06.psi
+    logit(mean.psi.NOG) <- b07.psi
+    logit(mean.psi.NRCW) <- b08.psi
+    logit(mean.psi.NTREE) <- b09.psi
+    logit(mean.psi.NWET) <-  b10.psi
+    logit(mean.psi.Oak) <- b11.psi 
+    logit(mean.psi.PCC) <-   b12.psi
+    logit(mean.psi.Plantations) <-   b13.psi
+    logit(mean.psi.RCW) <-  b14.psi
+    logit(mean.psi.Scrub) <- b15.psi 
+    logit(mean.psi.SwampMarsh) <-   b16.psi
+    logit(mean.psi.TCC) <-  b17.psi
+    
+    logit(mean.p.Flatwoods) <- b0.p
+    logit(mean.p.GrassPrairie) <- b1.p
+    logit(mean.p.Oak) <- b2.p
+    logit(mean.p.Plantations) <- b3.p
+    logit(mean.p.Scrub) <- b4.p
+    logit(mean.p.SwampMarsh) <-  b5.p
+    logit(mean.p.TABR) <- b6.p 
+    logit(mean.p.maxT) <- b7.p
+    logit(mean.p.noise) <-  b8.p
+    
+    for( i in 1:nSite ){   #logit transformation for psi
+      logit( psi[i] ) <- b00.psi*ANWET[i] + b01.psi*CAMAX[i]  
+          + b02.psi*CRMIN[i] + b03.psi*DSF[i] + b04.psi*Flatwoods[i] 
+          + b05.psi*GrassPrairie[i] + b06.psi*HNTREE[i] + b07.psi*NOG[i] + b08.psi*NRCW[i] 
+          + b09.psi*NTREE[i] + b10.psi*NWET[i] + b11.psi*Oak[i] + b12.psi*PCC[i] 
+          + b13.psi*Plantations[i] + b14.psi*RCW[i] + b15.psi*Scrub[i] + b16.psi*SwampMarsh[i] 
+          + b17.psi*TCC[i]
+          
+      for( t in 1:nocc ){   #logit transformation for p
+          logit( p[i,t] ) <-   b0.p*Flatwoods[i] + b1.p*GrassPrairie[i]
+          + b2.p*Oak[i] + b3.p*Plantations[i]  
+          + b4.p*Scrub[i] + b5.p*SwampMarsh[i] +b6.p*TABR[i,t] + b7.p*maxT[i,t] 
+          + b8.p*noise[i,t]
+          
+      }
+    }
+    
+
+    # Likelihood
+     # process model - occupancy
+      for( i in 1:nSite ){           #looped over every site
+      z[i] ~ dbern( psi[i] )         #site occupancy is Bernouli
+    
+      # observation model  - linking occupancy and detection
+      for( t in 1:nocc ){               #across every occasion
+        y[i,t] ~ dbern( z[i]*p[i,t] )   #enc hist (site, time) = occupied * p (site, time) 
+      }
+    }
+    
+    
+    # Derived parameters
+    # number of sites occupied
+    #N <- sum(z[]) 
+  
+  }
