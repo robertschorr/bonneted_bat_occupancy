@@ -1,6 +1,6 @@
 
   model {
-  # covariate model - imputing for missing values of covariate
+  # covariate model - imputing for missing values of covariate - TABR noise
   mu.TABR ~ dnorm( 0, 0.001 ) #mean
   sd.TABR ~ dgamma( 10, 10 )  #SD  
   tau1 <- 1/(sd.TABR)          #measure of precision
@@ -11,6 +11,7 @@
     }
    }
  
+  #max daily temp
   mu.maxT ~ dnorm( 0, 0.001 ) #mean
   sd.maxT ~ dgamma( 10, 10 )  #SD  
   tau2 <- 1/(sd.maxT)          #measure of precision
@@ -20,8 +21,8 @@
       maxT[i,t] ~ dnorm( mu.maxT, tau2 )
     }
    }
-   
-  # covariate model - imputing for missing values of covariate
+  
+  #moonphase 
   mu.scoto ~ dnorm( 0, 0.001 ) #mean
   sd.scoto ~ dgamma( 10, 10 )  #SD  
   tau3 <- 1/(sd.scoto)          #measure of precision
@@ -32,7 +33,7 @@
     }
    }
    
-  # covariate model - imputing for missing values of covariate
+  #insect noise
   mu.noise ~ dnorm( 0, 0.001 ) #mean
   sd.noise ~ dgamma( 10, 10 )  #SD  
   tau4 <- 1/(sd.noise)          #measure of precision
@@ -43,7 +44,7 @@
     }
    }
    
-    # covariate model - imputing for missing values of covariate
+  #minimum canopy 
   mu.CRMIN ~ dnorm( 0, 0.001 ) #mean
   sd.CRMIN ~ dgamma( 10, 10 )  #SD  
   tau5 <- 1/(sd.CRMIN)          #measure of precision
@@ -52,7 +53,7 @@
      CRMIN[i] ~ dnorm( mu.CRMIN, tau5 )
    } 
    
-  # covariate model - imputing for missing values of covariate
+  #maximum crown area
   mu.CAMAX ~ dnorm( 0, 0.001 ) #mean
   sd.CAMAX ~ dgamma( 10, 10 )  #SD  
   tau6 <- 1/(sd.CAMAX)          #measure of precision
@@ -60,6 +61,18 @@
   for( i in 1:nSite ){
      CAMAX[i] ~ dnorm( mu.CAMAX, tau6 )
    }  
+   
+  #Julian days
+  mu.julian ~ dnorm( 0, 0.001 ) #mean
+  sd.julian ~ dgamma( 10, 10 )  #SD  
+  tau7 <- 1/(sd.julian)          #measure of precision
+    
+  for( i in 1:nSite ){
+    for( t in 1:nocc ){
+     julian[i,t] ~ dnorm( mu.julian, tau7 )
+    }  
+   }
+   
    
     # Priors
     b0.p ~ dnorm( 0, 0.001 )T(-10, 10) #uniformative
@@ -71,6 +84,7 @@
     b6.p ~ dnorm( 0, 0.001 )T(-10, 10)
     b7.p ~ dnorm( 0, 0.001 )T(-10, 10) 
     b8.p ~ dnorm( 0, 0.001 )T(-10, 10) 
+    b9.p ~ dnorm( 0, 0.001 )T(-10, 10) 
     
     b00.psi ~ dnorm( 0, 0.001 )T(-10, 10) #uniformative
     b01.psi ~ dnorm( 0, 0.001 )T(-10, 10) 
@@ -119,6 +133,7 @@
     logit(mean.p.TABR) <- b6.p 
     logit(mean.p.maxT) <- b7.p
     logit(mean.p.noise) <-  b8.p
+    logit(mean.p.julian) <-  b9.p
     
     for( i in 1:nSite ){   #logit transformation for psi
       logit( psi[i] ) <- b00.psi*ANWET[i] + b01.psi*CAMAX[i]  
@@ -132,7 +147,7 @@
           logit( p[i,t] ) <-   b0.p*Flatwoods[i] + b1.p*GrassPrairie[i]
           + b2.p*Oak[i] + b3.p*Plantations[i]  
           + b4.p*Scrub[i] + b5.p*SwampMarsh[i] +b6.p*TABR[i,t] + b7.p*maxT[i,t] 
-          + b8.p*noise[i,t]
+          + b8.p*noise[i,t] + b9.p*julian[i,t]
           
       }
     }
@@ -152,6 +167,7 @@
     
     # Derived parameters
     # number of sites occupied
-    #N <- sum(z[]) 
+    N <- sum(z[]) 
   
   }
+  
