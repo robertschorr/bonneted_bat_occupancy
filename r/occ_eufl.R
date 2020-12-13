@@ -1658,7 +1658,7 @@ occ.result <- R2jags::jags(
   n.thin=nt
 )
 
-###############################################################
+#=========================Kitchen sink of meaningful covariates=========================
 #psi(full)p(habitats+enviro)
 
 # initial values
@@ -1684,16 +1684,16 @@ occ.init <- function(){
     b16.psi = runif( 1, -3, 3 ),
     b17.psi = runif( 1, -3, 3 ),
     
-    b0.p = runif( 1, -3, 3 ),
-    b1.p = runif( 1, -3, 3 ),
-    b2.p = runif( 1, -3, 3 ),
-    b3.p = runif( 1, -3, 3 ),
-    b4.p = runif( 1, -3, 3 ),
-    b5.p = runif( 1, -3, 3 ),
-    b6.p = runif( 1, -3, 3 ),
-    b7.p = runif( 1, -3, 3 ),
-    b8.p = runif( 1, -3, 3 ),
-    b9.p = runif( 1, -3, 3 ),
+    b000.p = runif( 1, -3, 3 ),
+    b001.p = runif( 1, -3, 3 ),
+    b002.p = runif( 1, -3, 3 ),
+    b003.p = runif( 1, -3, 3 ),
+    b004.p = runif( 1, -3, 3 ),
+    b005.p = runif( 1, -3, 3 ),
+    b006.p = runif( 1, -3, 3 ),
+    b007.p = runif( 1, -3, 3 ),
+    b008.p = runif( 1, -3, 3 ),
+    b009.p = runif( 1, -3, 3 ),
     
     z=z,
     mu.TABR = runif(1, -3, 3),
@@ -1709,11 +1709,16 @@ occ.init <- function(){
 
 # parameters to track
 
-occ.parm <- c( "b00.psi", "b01.psi", "b02.psi", "b03.psi", "b04.psi", "b05.psi",
-               "b06.psi", "b07.psi", "b08.psi", "b09.psi", "b10.psi", "b11.psi",
-               "b12.psi", "b13.psi", "b14.psi", "b15.psi", "b16.psi", "b17.psi",
-               "b0.p", "b1.p", "b2.p", "b3.p", "b4.p",
-               "b5.p","b6.p", "b7.p", "b8.p", "b9.p",
+occ.parm <- c( "b00.psi.ANWET", "b01.psi.CAMAX", "b02.psi.CRMIN", 
+               "b03.psi.DSF", "b04.psi.Flatwoods", "b05.psi.GrassPrairie",
+               "b06.psi.HNTREE", "b07.psi.NOG", "b08.psi.NRCW", "b09.psi.NTREE", 
+               "b10.psi.NWET", "b11.psi.Oak",
+               "b12.psi.PCC", "b13.psi.Plantations", "b14.psi.RCW", 
+               "b15.psi.Scrub", "b16.psi.SwampMarsh", "b17.psi.TCC",
+               "b000.p.Flatwoods", "b001.p.GrassPrairie", "b002.p.Oak", 
+               "b003.p.Plantations", "b004.p.Scrub",
+               "b005.p.SwampMarsh","b006.p.TABR", "b007.p.julian", 
+               "b008.p.maxT", "b009.p.noise",
                "N",   
                "mean.psi.ANWET", "mean.psi.CAMAX", "mean.psi.CRMIN", "mean.psi.DSF", 
                "mean.psi.Flatwoods", "mean.psi.GrassPrairie",  "mean.psi.HNTREE", 
@@ -1721,12 +1726,13 @@ occ.parm <- c( "b00.psi", "b01.psi", "b02.psi", "b03.psi", "b04.psi", "b05.psi",
                "mean.psi.Oak", "mean.psi.PCC", "mean.psi.Plantations", 
                "mean.psi.RCW", "mean.psi.Scrub", "mean.psi.SwampMarsh", "mean.psi.TCC", 
                
-               "mean.p.TABR", "mean.p.Flatwoods", "mean.p.GrassPrairie", "mean.p.julian", 
-               "mean.p.maxT", "mean.p.noise", "mean.p.Oak", "mean.p.Plantations", 
-               "mean.p.Scrub", "mean.p.SwampMarsh")
+               "mean.p.Flatwoods", "mean.p.GrassPrairie", "mean.p.Oak", "mean.p.Plantations", 
+               "mean.p.Scrub", "mean.p.SwampMarsh", "mean.p.TABR", "mean.p.julian",
+               "mean.p.maxT","mean.p.noise"
+               )
 
-ni <- 10000
-nb <- 2000
+ni <- 1000
+nb <- 200
 nt <- 1
 nc <- 3
 
@@ -1736,6 +1742,132 @@ occ.result <- R2jags::jags(
   occ.init,
   occ.parm,
   here::here( "jags", "occ_psi_full_phabitat+enviro.txt" ),
+  n.chains=nc,
+  n.iter=ni,
+  n.burnin=nb,
+  n.thin=nt
+)
+
+#=========================Parameter augmentation=================================
+#psi(full)p(habitats+enviro) - parameter augmentation 
+
+# initial values
+z <- apply( EH, 1, max, na.rm=T )
+occ.init <- function(){
+  list(
+    b00.psi = runif( 1, -3, 3 ),
+    b01.psi = runif( 1, -3, 3 ),
+    b02.psi = runif( 1, -3, 3 ),
+    b03.psi = runif( 1, -3, 3 ),
+    b04.psi = runif( 1, -3, 3 ),
+    b05.psi = runif( 1, -3, 3 ),
+    b06.psi = runif( 1, -3, 3 ),
+    b07.psi = runif( 1, -3, 3 ),
+    b08.psi = runif( 1, -3, 3 ),
+    b09.psi = runif( 1, -3, 3 ),
+    b10.psi = runif( 1, -3, 3 ),
+    b11.psi = runif( 1, -3, 3 ),
+    b12.psi = runif( 1, -3, 3 ),
+    b13.psi = runif( 1, -3, 3 ),
+    b14.psi = runif( 1, -3, 3 ),
+    b15.psi = runif( 1, -3, 3 ),
+    b16.psi = runif( 1, -3, 3 ),
+    b17.psi = runif( 1, -3, 3 ),
+   
+    wt00 = runif(1, 0, 1), #weights for psi
+    wt01 = runif(1, 0, 1),
+    wt02 = runif(1, 0, 1),
+    wt03 = runif(1, 0, 1),
+    wt04 = runif(1, 0, 1),
+    wt05 = runif(1, 0, 1),
+    wt06 = runif(1, 0, 1),
+    wt07 = runif(1, 0, 1),
+    wt08 = runif(1, 0, 1),
+    wt09 = runif(1, 0, 1),
+    wt10 = runif(1, 0, 1),
+    wt11 = runif(1, 0, 1),
+    wt12 = runif(1, 0, 1),
+    wt13 = runif(1, 0, 1),
+    wt14 = runif(1, 0, 1),
+    wt15 = runif(1, 0, 1),
+    wt16 = runif(1, 0, 1),
+    wt17 = runif(1, 0, 1),
+    
+    b000.p = runif( 1, -3, 3 ),
+    b001.p = runif( 1, -3, 3 ),
+    b002.p = runif( 1, -3, 3 ),
+    b003.p = runif( 1, -3, 3 ),
+    b004.p = runif( 1, -3, 3 ),
+    b005.p = runif( 1, -3, 3 ),
+    b006.p = runif( 1, -3, 3 ),
+    b007.p = runif( 1, -3, 3 ),
+    b008.p = runif( 1, -3, 3 ),
+    b009.p = runif( 1, -3, 3 ),
+    
+    w00 = runif(1, 0, 1), #weights for p
+    w01 = runif(1, 0, 1),
+    w02 = runif(1, 0, 1),
+    w03 = runif(1, 0, 1),
+    w04 = runif(1, 0, 1),
+    w05 = runif(1, 0, 1),
+    w06 = runif(1, 0, 1),
+    w07 = runif(1, 0, 1),
+    w08 = runif(1, 0, 1),
+    w09 = runif(1, 0, 1),
+ 
+        z=z,
+    mu.TABR = runif(1, -3, 3),
+    sd.TABR = runif(1, 0.5, 1.5),
+    mu.maxT = runif(1, -3, 3),
+    sd.maxT = runif(1, 0.5, 1.5),
+    mu.noise = runif(1, -3, 3),
+    sd.noise = runif(1, 0.5, 1.5),
+    mu.julian = runif(1, -3, 3),
+    sd.julian = runif(1, 0.5, 1.5)
+  )
+}
+
+# parameters to track
+
+occ.parm <- c( "b00.psi.ANWET", "b01.psi.CAMAX", "b02.psi.CRMIN", 
+               "b03.psi.DSF", "b04.psi.Flatwoods", "b05.psi.GrassPrairie",
+               "b06.psi.HNTREE", "b07.psi.NOG", "b08.psi.NRCW", "b09.psi.NTREE", 
+               "b10.psi.NWET", "b11.psi.Oak",
+               "b12.psi.PCC", "b13.psi.Plantations", "b14.psi.RCW", 
+               "b15.psi.Scrub", "b16.psi.SwampMarsh", "b17.psi.TCC",
+               
+               "b000.p.Flatwoods", "b001.p.GrassPrairie", "b002.p.Oak", 
+               "b003.p.Plantations", "b004.p.Scrub",
+               "b005.p.SwampMarsh","b006.p.TABR", "b007.p.julian", 
+               "b008.p.maxT", "b009.p.noise",
+               
+               "N",   
+               "mean.psi.ANWET", "mean.psi.CAMAX", "mean.psi.CRMIN", "mean.psi.DSF", 
+               "mean.psi.Flatwoods", "mean.psi.GrassPrairie",  "mean.psi.HNTREE", 
+               "mean.psi.NOG", "mean.psi.NRCW", "mean.psi.NTREE","mean.psi.NWET",  
+               "mean.psi.Oak", "mean.psi.PCC", "mean.psi.Plantations", 
+               "mean.psi.RCW", "mean.psi.Scrub", "mean.psi.SwampMarsh", "mean.psi.TCC", 
+               
+               "mean.p.Flatwoods", "mean.p.GrassPrairie", "mean.p.Oak", "mean.p.Plantations", 
+               "mean.p.Scrub", "mean.p.SwampMarsh", "mean.p.TABR", "mean.p.julian",
+               "mean.p.maxT","mean.p.noise",
+               
+               "w00", "w01", "w02", "w03", "w04", "w05", "w06", "w07", "w08", "w09", "w10", 
+               "wt00", "wt01", "wt02", "wt03", "wt04", "wt05", "wt06", "wt07", "wt08", "wt09",
+               "wt10", "wt11", "wt12", "wt13", "wt14", "wt15", "wt16", "wt17"
+)
+
+ni <- 5000
+nb <- 1000
+nt <- 1
+nc <- 3
+
+# run the model
+occ.result <- R2jags::jags(
+  occ.data,
+  occ.init,
+  occ.parm,
+  here::here( "jags", "EUFLp_augmentation.txt" ),
   n.chains=nc,
   n.iter=ni,
   n.burnin=nb,
