@@ -1,0 +1,245 @@
+
+  model {
+  # covariate model - imputing for missing values of covariate - TABR noise
+  mu.TABR ~ dnorm( 0, 0.001 ) #mean
+  sd.TABR ~ dgamma( 10, 10 )  #SD  
+  tau1 <- 1/(sd.TABR)          #measure of precision
+    
+  for( i in 1:nSite ){
+      for( t in 1:nocc ){
+      TABR[i,t] ~ dnorm( mu.TABR, tau1 )
+    }
+   }
+ 
+  #max daily temp
+  mu.maxT ~ dnorm( 0, 0.001 ) #mean
+  sd.maxT ~ dgamma( 10, 10 )  #SD  
+  tau2 <- 1/(sd.maxT)          #measure of precision
+    
+  for( i in 1:nSite ){
+      for( t in 1:nocc ){
+      maxT[i,t] ~ dnorm( mu.maxT, tau2 )
+    }
+   }
+  
+  #moonphase 
+  mu.scoto ~ dnorm( 0, 0.001 ) #mean
+  sd.scoto ~ dgamma( 10, 10 )  #SD  
+  tau3 <- 1/(sd.scoto)          #measure of precision
+    
+  for( i in 1:nSite ){
+      for( t in 1:nocc ){
+      scoto[i,t] ~ dnorm( mu.scoto, tau3 )
+    }
+   }
+   
+  #insect noise
+  mu.noise ~ dnorm( 0, 0.001 ) #mean
+  sd.noise ~ dgamma( 10, 10 )  #SD  
+  tau4 <- 1/(sd.noise)          #measure of precision
+    
+  for( i in 1:nSite ){
+      for( t in 1:nocc ){
+      noise[i,t] ~ dnorm( mu.noise, tau4 )
+    }
+   }
+   
+  #minimum canopy 
+  mu.CRMIN ~ dnorm( 0, 0.001 ) #mean
+  sd.CRMIN ~ dgamma( 10, 10 )  #SD  
+  tau5 <- 1/(sd.CRMIN)          #measure of precision
+    
+  for( i in 1:nSite ){
+     CRMIN[i] ~ dnorm( mu.CRMIN, tau5 )
+   } 
+   
+  #maximum crown area
+  mu.CAMAX ~ dnorm( 0, 0.001 ) #mean
+  sd.CAMAX ~ dgamma( 10, 10 )  #SD  
+  tau6 <- 1/(sd.CAMAX)          #measure of precision
+    
+  for( i in 1:nSite ){
+     CAMAX[i] ~ dnorm( mu.CAMAX, tau6 )
+   }  
+   
+  #Julian days
+  mu.julian ~ dnorm( 0, 0.001 ) #mean
+  sd.julian ~ dgamma( 10, 10 )  #SD  
+  tau7 <- 1/(sd.julian)          #measure of precision
+    
+  for( i in 1:nSite ){
+    for( t in 1:nocc ){
+     julian[i,t] ~ dnorm( mu.julian, tau7 )
+    }  
+   }
+   
+   
+    # Priors for p and parameter weights
+    b000.p.Flatwoods ~ dnorm( 0, 0.001 )T(-10, 10) #uniformative p priors
+    b001.p.GrassPrairie ~ dnorm( 0, 0.001 )T(-10, 10) 
+    b002.p.Oak ~ dnorm( 0, 0.001 )T(-10, 10) 
+    b003.p.Plantations ~ dnorm( 0, 0.001 )T(-10, 10) 
+    b004.p.Scrub ~ dnorm( 0, 0.001 )T(-10, 10) 
+    b005.p.SwampMarsh ~ dnorm( 0, 0.001 )T(-10, 10) 
+    b006.p.TABR ~ dnorm( 0, 0.001 )T(-10, 10)
+    b007.p.julian ~ dnorm( 0, 0.001 )T(-10, 10) 
+    b008.p.maxT ~ dnorm( 0, 0.001 )T(-10, 10) 
+    b009.p.noise ~ dnorm( 0, 0.001 )T(-10, 10) 
+    
+    w00 ~ dbern(x00) #creating indicator variables that turn on (X=1), off (X=0)
+    w01 ~ dbern(x01)
+    w02 ~ dbern(x02)
+    w03 ~ dbern(x03)
+    w04 ~ dbern(x04)
+    w05 ~ dbern(x05)
+    w06 ~ dbern(x06)
+    w07 ~ dbern(x06)
+    w08 ~ dbern(x08)
+    w09 ~ dbern(x09)
+    
+    x00 ~ dbeta( 1, 1) #priors for the weights
+    x01 ~ dbeta( 1, 1)
+    x02 ~ dbeta( 1, 1)
+    x03 ~ dbeta( 1, 1)
+    x04 ~ dbeta( 1, 1)
+    x05 ~ dbeta( 1, 1)
+    x06 ~ dbeta( 1, 1)
+    x07 ~ dbeta( 1, 1)
+    x08 ~ dbeta( 1, 1)
+    x09 ~ dbeta( 1, 1)
+    
+    # Priors for psi and parameter weights
+    b00.psi.ANWET ~ dnorm( 0, 0.001 )T(-10, 10) #uniformative psi priors
+    b01.psi.CAMAX ~ dnorm( 0, 0.001 )T(-10, 10) 
+    b02.psi.CRMIN ~ dnorm( 0, 0.001 )T(-10, 10) 
+    b03.psi.DSF ~ dnorm( 0, 0.001 )T(-10, 10) 
+    b04.psi.Flatwoods ~ dnorm( 0, 0.001 )T(-10, 10) 
+    b05.psi.GrassPrairie ~ dnorm( 0, 0.001 )T(-10, 10) 
+    b06.psi.HNTREE ~ dnorm( 0, 0.001 )T(-10, 10)
+    b07.psi.NOG ~ dnorm( 0, 0.001 )T(-10, 10) 
+    b08.psi.NRCW ~ dnorm( 0, 0.001 )T(-10, 10)
+    b09.psi.NTREE ~ dnorm( 0, 0.001 )T(-10, 10) 
+    b10.psi.NWET ~ dnorm( 0, 0.001 )T(-10, 10) 
+    b11.psi.Oak ~ dnorm( 0, 0.001 )T(-10, 10)
+    b12.psi.PCC ~ dnorm( 0, 0.001 )T(-10, 10) 
+    b13.psi.Plantations ~ dnorm( 0, 0.001 )T(-10, 10)
+    b14.psi.RCW ~ dnorm( 0, 0.001 )T(-10, 10)
+    b15.psi.Scrub ~ dnorm( 0, 0.001 )T(-10, 10)
+    b16.psi.SwampMarsh ~ dnorm( 0, 0.001 )T(-10, 10)
+    b17.psi.TCC ~ dnorm( 0, 0.001 )T(-10, 10)
+    
+    wt00 ~ dbern(xt00) #creating indicator variables that turn on/off
+    wt01 ~ dbern(xt01)
+    wt02 ~ dbern(xt02)
+    wt03 ~ dbern(xt03)
+    wt04 ~ dbern(xt04)
+    wt05 ~ dbern(xt05)
+    wt06 ~ dbern(xt06)
+    wt07 ~ dbern(xt07)
+    wt08 ~ dbern(xt08)
+    wt09 ~ dbern(xt09)
+    wt10 ~ dbern(xt10)
+    wt11 ~ dbern(xt11) 
+    wt12 ~ dbern(xt12)
+    wt13 ~ dbern(xt13)
+    wt14 ~ dbern(xt14)
+    wt15 ~ dbern(xt15)
+    wt16 ~ dbern(xt16)
+    wt17 ~ dbern(xt17)
+    
+    xt00 ~ dbeta( 1, 1) #creating priors for the weights
+    xt01 ~ dbeta( 1, 1) 
+    xt02 ~ dbeta( 1, 1)
+    xt03 ~ dbeta( 1, 1)
+    xt04 ~ dbeta( 1, 1)
+    xt05 ~ dbeta( 1, 1)
+    xt06 ~ dbeta( 1, 1)
+    xt07 ~ dbeta( 1, 1)
+    xt08 ~ dbeta( 1, 1)
+    xt09 ~ dbeta( 1, 1)
+    xt10 ~ dbeta( 1, 1)
+    xt11 ~ dbeta( 1, 1) 
+    xt12 ~ dbeta( 1, 1)
+    xt13 ~ dbeta( 1, 1)
+    xt14 ~ dbeta( 1, 1)
+    xt15 ~ dbeta( 1, 1)
+    xt16 ~ dbeta( 1, 1)
+    xt17 ~ dbeta( 1, 1)
+    
+    logit(mean.p.Flatwoods) <- b000.p.Flatwoods      #backtransformed mean.p
+    logit(mean.p.GrassPrairie) <- b001.p.GrassPrairie
+    logit(mean.p.Oak) <- b002.p.Oak
+    logit(mean.p.Plantations) <- b003.p.Plantations
+    logit(mean.p.Scrub) <- b004.p.Scrub
+    logit(mean.p.SwampMarsh) <-  b005.p.SwampMarsh
+    logit(mean.p.TABR) <- b006.p.TABR
+    logit(mean.p.julian) <-  b007.p.julian
+    logit(mean.p.maxT) <- b008.p.maxT
+    logit(mean.p.noise) <-  b009.p.noise
+    
+    logit(mean.psi.ANWET) <- b00.psi.ANWET  #the backtransformed mean.psi
+    logit(mean.psi.CAMAX) <- b01.psi.CAMAX
+    logit(mean.psi.CRMIN) <- b02.psi.CRMIN
+    logit(mean.psi.DSF) <- b03.psi.DSF
+    logit(mean.psi.Flatwoods) <- b04.psi.Flatwoods
+    logit(mean.psi.GrassPrairie) <- b05.psi.GrassPrairie
+    logit(mean.psi.HNTREE) <- b06.psi.HNTREE
+    logit(mean.psi.NOG) <- b07.psi.NOG
+    logit(mean.psi.NRCW) <- b08.psi.NRCW
+    logit(mean.psi.NTREE) <- b09.psi.NTREE
+    logit(mean.psi.NWET) <-  b10.psi.NWET
+    logit(mean.psi.Oak) <- b11.psi.Oak
+    logit(mean.psi.PCC) <-   b12.psi.PCC
+    logit(mean.psi.Plantations) <-   b13.psi.Plantations
+    logit(mean.psi.RCW) <-  b14.psi.RCW
+    logit(mean.psi.Scrub) <- b15.psi.Scrub
+    logit(mean.psi.SwampMarsh) <-   b16.psi.SwampMarsh
+    logit(mean.psi.TCC) <-  b17.psi.TCC
+    
+    
+    #logit transformation for psi
+    for( i in 1:nSite ){   
+      logit( psi[i] ) <- wt00*b00.psi.ANWET*ANWET[i] + wt01*b01.psi.CAMAX*CAMAX[i]  
+          + wt02*b02.psi.CRMIN*CRMIN[i] + wt03*b03.psi.DSF*DSF[i] 
+          + wt04*b04.psi.Flatwoods*Flatwoods[i] 
+          + wt05*b05.psi.GrassPrairie*GrassPrairie[i] + wt06*b06.psi.HNTREE*HNTREE[i] 
+          + wt07*b07.psi.NOG*NOG[i] + wt08*b08.psi.NRCW*NRCW[i] 
+          + wt09*b09.psi.NTREE*NTREE[i] + wt10*b10.psi.NWET*NWET[i] 
+          + wt11*b11.psi.Oak*Oak[i] + wt12*b12.psi.PCC*PCC[i] 
+          + wt13*b13.psi.Plantations*Plantations[i] 
+          + wt14*b14.psi.RCW*RCW[i] + wt15*b15.psi.Scrub*Scrub[i] 
+          + wt16*b16.psi.SwampMarsh*SwampMarsh[i] 
+          + wt17*b17.psi.TCC*TCC[i]
+          
+     #logit transformation for p     
+      for( t in 1:nocc ){   
+          logit( p[i,t] ) <- w00*b000.p.Flatwoods*Flatwoods[i] 
+          + w01*b001.p.GrassPrairie*GrassPrairie[i]
+          + w01*b002.p.Oak*Oak[i] + w03*b003.p.Plantations*Plantations[i] 
+          + w04*b004.p.Scrub*Scrub[i] 
+          + w05*b005.p.SwampMarsh*SwampMarsh[i] + w06*b006.p.TABR*TABR[i,t] 
+          + w07*b007.p.julian*julian[i,t] 
+          + w08*b008.p.maxT*maxT[i,t] + w09*b009.p.noise*noise[i,t] 
+          
+      }
+    }
+    
+
+    # Likelihood
+     # process model - occupancy
+      for( i in 1:nSite ){           #looped over every site
+       z[i] ~ dbern( psi[i] )         #site occupancy is Bernouli
+    
+      # observation model  - linking occupancy and detection
+      for( t in 1:nocc ){               #across every occasion
+        y[i,t] ~ dbern( z[i]*p[i,t] )   #enc hist (site, time) = occupied * p (site, time) 
+      }
+    }
+    
+    
+    # Derived parameters
+    # number of sites occupied
+    N <- sum(z[]) 
+  
+  }
+  
